@@ -13,18 +13,25 @@ interface FeaturedPhotoUrls {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  
+
   featuredPhotoStream: FirebaseObjectObservable<FeaturedPhotoUrls>;
-  
-  constructor(private db: AngularFireDatabase) { 
+
+  constructor(private db: AngularFireDatabase) {
     this.featuredPhotoStream = this.db.object('/photos/featured');
   }
-  
-  featuredPhotoSelected(event: any) {
+
+  featuredPhotoSelected(event: any, photoName: string) {
     const file: File = event.target.files[0];
-    const metaData = {'contentType': file.type};
-    const storageRef: firebase.storage.Reference = firebase.storage().ref('/photos/featured/url1');
-    storageRef.put(file, metaData);
+
+    const metaData = { 'contentType': file.type };
+    const storageRef: firebase.storage.Reference = firebase.storage().ref(`/photos/featured/${photoName}`);
+    const uploadTask: firebase.storage.UploadTask = storageRef.put(file, metaData);
     console.log('uploading', file.name);
+
+    uploadTask.then((uploadSnapshot: firebase.storage.UploadTaskSnapshot) => {
+      console.log('upload complete');
+      const downloadUrl = uploadSnapshot.downloadURL;
+      firebase.database().ref(`/photos/featured/${photoName}`).set(downloadUrl);
+    });
   }
 }
