@@ -12,3 +12,9 @@
   </div>
 </div>
 <hr>
+<h1>Photo List</h1>
+<div>
+  <input type="file" (change)="photoSelectedForList($event)">
+  <img *ngFor="let photo of photoListStream | async" [src]="photo.url" alt="photo in the list">
+</div>
+<hr>
